@@ -1,0 +1,202 @@
+version: 1.0.0
+
+client:
+
+  organization: Org1
+
+  logging:
+    level: info
+
+  cryptoconfig:
+    path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config
+
+  # Some SDKs support pluggable KV stores, the properties under "credentialStore"
+  # are implementation specific
+  credentialStore:
+    # [Optional]. Used by user store. Not needed if all credentials are embedded in configuration
+    # and enrollments are performed elswhere.
+    path: "/tmp/state-store"
+
+    # [Optional]. Specific to the CryptoSuite implementation used by GO SDK. Software-based implementations
+    # requiring a key store. PKCS#11 based implementations does not.
+    cryptoStore:
+      # Specific to the underlying KeyValueStore that backs the crypto key store.
+      path: /tmp/msp
+
+
+  BCCSP:
+    security:
+      enabled: true
+      default:
+        provider: "SW"
+      hashAlgorithm: "SHA2"
+      softVerify: true
+      level: 256
+
+  tlsCerts:
+
+    systemCertPool: false
+    client:
+      key:
+        path:
+      #        path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/stock/crypto-config/peerOrganizations/tls.example.com/users/User1@tls.example.com/tls/client.key
+      cert:
+        path:
+#        path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/stock/crypto-config/peerOrganizations/tls.example.com/users/User1@tls.example.com/tls/client.crt
+
+channels:
+  mychannel:
+    peers:
+      peer0.org1.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      #      peer1.org1.example.com:
+      #        endorsingPeer: true
+      #        chaincodeQuery: true
+      #        ledgerQuery: true
+      #        eventSource: true
+
+      peer0.org2.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer1.org2.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    orderers:
+      - orderer.example.com
+
+organizations:
+  Org1:
+    mspid: Org1MSP
+    cryptoPath:  peerOrganizations/org1.example.com/users/{username}@org1.example.com/msp
+    peers:
+      - peer0.org1.example.com
+    #      - peer1.org1.example.com
+    certificateAuthorities:
+      - ca-org1
+
+  Org2:
+    mspid: Org2MSP
+    cryptoPath:  peerOrganizations/org2.example.com/users/{username}@org2.example.com/msp
+    peers:
+      - peer0.org2.example.com
+      - peer1.org2.example.com
+    certificateAuthorities:
+      - ca-org2
+
+  ordererorg:
+    mspID: OrdererMSP
+    cryptoPath: ordererOrganizations/example.com/users/{username}@example.com/msp
+
+
+orderers:
+  orderer.example.com:
+    url: localhost:7050
+
+    grpcOptions:
+      ssl-target-name-override: orderer.example.com
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+
+    tlsCACerts:
+      path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
+
+
+peers:
+  peer0.org1.example.com:
+    url: localhost:7051
+    grpcOptions:
+      ssl-target-name-override: peer0.org1.example.com
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+
+    tlsCACerts:
+      path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+
+  #  peer1.org1.example.com:
+  #    url: localhost:8051
+  #    grpcOptions:
+  #      ssl-target-name-override: peer1.org1.example.com
+  #      keep-alive-time: 0s
+  #      keep-alive-timeout: 20s
+  #      keep-alive-permit: false
+  #      fail-fast: false
+  #      allow-insecure: false
+  #    tlsCACerts:
+  #      path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+
+  peer0.org2.example.com:
+    url: localhost:9051
+    grpcOptions:
+      ssl-target-name-override: peer0.org2.example.com
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+
+    tlsCACerts:
+      path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+
+  peer1.org2.example.com:
+    url: localhost:10051
+    grpcOptions:
+      ssl-target-name-override: peer1.org2.example.com
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+
+    tlsCACerts:
+      path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+
+
+certificateAuthorities:
+  ca-org1:
+    url: http://localhost:7054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+#      path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
+      path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+      client:
+        key:
+          path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/tls/client.key
+        cert:
+          path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/tls/client.crt
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    caName: ca-org1
+
+  ca-org2:
+    url: https://localhost:8054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+      client:
+        key:
+          path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org2.example.com/users/User1@org2.example.com/tls/client.key
+        cert:
+          path: /home/fujitsu/workspace/go/src/github.com/hyperledger/fabric/scripts/fabric-samples/first-network/crypto-config/peerOrganizations/org2.example.com/users/User1@org2.example.com/tls/client.crt
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    caName: ca-org2
