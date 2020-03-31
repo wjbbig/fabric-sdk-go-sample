@@ -4,8 +4,6 @@ import (
 	"encoding/hex"
 	"fabric-sdk-go-test/fabricsdk"
 	"fmt"
-	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
-	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/msp"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/context"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
@@ -121,26 +119,26 @@ func getRegistrarEnrollmentCredentialsWithCAInstance(t *testing.T, ctxProvider c
 	return caConfig.Registrar.EnrollID, caConfig.Registrar.EnrollSecret
 }
 
-func TestEnrollUser(t *testing.T) {
-	sdk, _ := fabsdk.New(config.FromFile("/home/fujitsu/IdeaProjects/com/fujitsu/fabric-sdk-go-test/config/connection-config.yaml"))
-	clientContext := sdk.Context()
-	mspClient, _ := msp.New(clientContext)
-	err := mspClient.Enroll("wjb", msp.WithSecret("NlgXFsGJaHEb"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	aa, err := mspClient.GetSigningIdentity("wjb")
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(aa)
-	identity.
-	channelContext := sdk.ChannelContext("mychannel", fabsdk.WithUser("wjb"))
-	channelClient, err := channel.New(channelContext)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("通道创建完成")
-	ledger, err := ledger.New(channelContext)
-}
+//func TestEnrollUser(t *testing.T) {
+//	sdk, _ := fabsdk.New(config.FromFile("/home/fujitsu/IdeaProjects/com/fujitsu/fabric-sdk-go-test/config/connection-config.yaml"))
+//	clientContext := sdk.Context()
+//	mspClient, _ := msp.New(clientContext)
+//	err := mspClient.Enroll("wjb", msp.WithSecret("NlgXFsGJaHEb"))
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	aa, err := mspClient.GetSigningIdentity("wjb")
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//	fmt.Println(aa)
+//	identity.
+//	channelContext := sdk.ChannelContext("mychannel", fabsdk.WithUser("wjb"))
+//	channelClient, err := channel.New(channelContext)
+//	if err != nil {
+//		panic(err)
+//	}
+//	fmt.Println("通道创建完成")
+//	ledger, err := ledger.New(channelContext)
+//}
