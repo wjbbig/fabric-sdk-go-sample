@@ -15,7 +15,6 @@ client:
     cryptoStore:
       path: /tmp/msp
 
-
   BCCSP:
     security:
       enabled: true

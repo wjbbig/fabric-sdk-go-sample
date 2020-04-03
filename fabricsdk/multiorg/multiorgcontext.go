@@ -3,6 +3,7 @@ package multiorg
 import (
 	"fmt"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
+	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/resmgmt"
 	contextAPI "github.com/hyperledger/fabric-sdk-go/pkg/common/providers/context"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
@@ -20,17 +21,17 @@ const (
 	org2User         = "User1"
 )
 
-
 type MultiorgContext struct {
 	OrdererClientContext   contextAPI.ClientProvider
 	Org1AdminClientContext contextAPI.ClientProvider
 	Org2AdminClientContext contextAPI.ClientProvider
-	ChClientOrg1User *channel.Client
-	ChClientOrg2User *channel.Client
-	Org1ResMgmt      *resmgmt.Client
-	Org2ResMgmt      *resmgmt.Client
-	Sdk              *fabsdk.FabricSDK
-	ChannelID        string
+	ChClientOrg1User       *channel.Client
+	ChClientOrg2User       *channel.Client
+	Org1ResMgmt            *resmgmt.Client
+	Org2ResMgmt            *resmgmt.Client
+	Sdk                    *fabsdk.FabricSDK
+	LedgerClient           *ledger.Client
+	ChannelID              string
 }
 
 func (mc *MultiorgContext) Init() {
@@ -60,6 +61,10 @@ func (mc *MultiorgContext) Init() {
 		panic(err)
 	}
 	mc.Org2ResMgmt = org2ResMgmt
+	mc.LedgerClient, err = ledger.New(org1ChannelClientContext)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println("finish initializing the sdk")
 }
 

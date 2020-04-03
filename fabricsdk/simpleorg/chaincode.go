@@ -1,4 +1,4 @@
-package fabricsdk
+package simpleorg
 
 import (
 	"fabric-sdk-go-test/util"

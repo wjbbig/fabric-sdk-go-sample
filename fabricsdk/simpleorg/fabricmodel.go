@@ -1,4 +1,4 @@
-package fabricsdk
+package simpleorg
 
 import (
 	"fmt"

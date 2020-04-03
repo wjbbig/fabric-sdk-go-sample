@@ -1,4 +1,4 @@
-package fabricsdk
+package simpleorg
 
 import (
 	"github.com/hyperledger/fabric-protos-go/common"

@@ -1,4 +1,4 @@
-package main
+package multiorg
 
 import (
 	"fmt"
