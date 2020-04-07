@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
 	"github.com/pkg/errors"
@@ -56,4 +57,10 @@ func Bytes(b *common.BlockHeader) []byte {
 		panic(err)
 	}
 	return result
+}
+
+func GetTransaction(txBytes []byte) (*peer.Transaction, error) {
+	tx := &peer.Transaction{}
+	err := proto.Unmarshal(txBytes, tx)
+	return tx, errors.Wrap(err, "error unmarshaling Transaction")
 }

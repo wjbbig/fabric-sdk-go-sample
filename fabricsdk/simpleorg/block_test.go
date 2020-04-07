@@ -1,13 +1,15 @@
 package simpleorg
 
 import (
-	"encoding/hex"
-	"fabric-sdk-go-test/util"
+	"github.com/hyperledger/fabric-protos-go/common"
 	"testing"
 )
 
-func TestGetCreateTime(t *testing.T) {
-	fm := FabricModel{
+var fm *FabricModel
+var block *common.Block
+
+func init() {
+	fm = &FabricModel{
 		ConfigFile: "/home/fujitsu/IdeaProjects/com/fujitsu/fabric-sdk-go-test/config/connection-config.yaml",
 		OrgAdmin:   "Admin",
 		OrgName:    "Org1",
@@ -15,28 +17,72 @@ func TestGetCreateTime(t *testing.T) {
 		ChannelID:  "mychannel",
 		HasInit:    false,
 	}
-
 	fm.Init()
-	defer fm.Sdk.Close()
-	block, err := fm.QueryBlockByNumber(4)
-	hash, err := GenerateBlockHash(block)
+
+	block, _ = fm.QueryBlockByNumber(4)
+
+}
+
+func TestGetBlockNumber(t *testing.T) {
+	number := GetBlockNumber(block)
+	t.Log(number)
+}
+
+func TestGetDataHash(t *testing.T) {
+	dataHash := GetDataHash(block)
+	t.Log(dataHash)
+}
+
+func TestGetPreviousHash(t *testing.T) {
+	hash := GetPreviousHash(block)
 	t.Log(hash)
+}
+
+func TestGetTxCount(t *testing.T) {
+	count := GetTxCount(block)
+	t.Log(count)
+}
+
+func TestGetChannelVersion(t *testing.T) {
+	config, err := fm.QueryConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	version := GetChannelVersion(config)
+	t.Log(version)
+}
+
+func TestGetCreateTime(t *testing.T) {
 	time, err := GetCreateTime(block)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(time)
-	bytes := util.Bytes(block.Header)
-	blockHash := util.ComputeSHA256(bytes)
-	t.Log(hex.EncodeToString(blockHash))
-	block, err = fm.QueryBlockByHash(blockHash)
+}
+
+func TestGenerateBlockHash(t *testing.T) {
+	hash, err := GenerateBlockHash(block)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(block)
+	t.Log(hash)
+}
 
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//t.Log(time)
+func TestGetInvalidTxCount(t *testing.T) {
+	count, err := GetInvalidTxCount(fm.LedgerClient, block)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(count)
+}
+
+func TestGetTx(t *testing.T) {
+	tx := GetTx(block, 0)
+	t.Log(tx)
+}
+
+func TestGetTxFilter(t *testing.T) {
+	filter := GetTxFilter(block, 0)
+	t.Log(filter)
 }

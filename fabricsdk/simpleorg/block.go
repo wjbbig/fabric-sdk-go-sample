@@ -3,9 +3,9 @@ package simpleorg
 import (
 	"encoding/hex"
 	"fabric-sdk-go-test/util"
-	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
 	"github.com/pkg/errors"
 	"time"
@@ -33,24 +33,10 @@ func GetChannelVersion(config fab.ChannelCfg) uint64 {
 
 func GetCreateTime(block *common.Block) (string, error) {
 	firstTx := block.Data.Data[0]
-	env, err := util.GetEnvelopeFromBlock(firstTx)
+	channelHeader, err := getChannelHeader(firstTx)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "error getting channelHeader")
 	}
-	if env == nil {
-		return "", errors.New("nil envelope")
-	}
-	payload, err := util.GetPayload(env)
-	if err != nil {
-		return "", errors.Wrap(err, "error extracting ChannelHeader from payload")
-	}
-	channelHeaderBytes := payload.Header.ChannelHeader
-	channelHeader := &common.ChannelHeader{}
-	err = proto.Unmarshal(channelHeaderBytes, channelHeader)
-	if err != nil {
-		return "", errors.Wrap(err, "error extracting ChannelHeader from payload")
-	}
-	fmt.Println(channelHeader.Type)
 	timestamp := channelHeader.Timestamp
 	return time.Unix(timestamp.Seconds, 0).Format("2006-01-02 15:04:05"), nil
 }
@@ -61,8 +47,23 @@ func GenerateBlockHash(block *common.Block) (string, error) {
 	return hex.EncodeToString(blockHash), nil
 }
 
-func GetInvalidTxCount(block *common.Block) {
-
+func GetInvalidTxCount(lc *ledger.Client, block *common.Block) (uint64, error) {
+	var count uint64
+	for _, tx := range block.Data.Data {
+		channelHeader, err := getChannelHeader(tx)
+		if err != nil {
+			return 0, errors.Wrap(err, "error getting channelHeader")
+		}
+		txId := fab.TransactionID(channelHeader.TxId)
+		transaction, err := lc.QueryTransaction(txId)
+		if err != nil {
+			return 0, errors.Wrap(err, "error getting transaction")
+		}
+		if transaction.ValidationCode != 0 {
+			count++
+		}
+	}
+	return count, nil
 }
 
 func GetTx(block *common.Block, i uint64) []byte {
@@ -70,6 +71,27 @@ func GetTx(block *common.Block, i uint64) []byte {
 	return dataBytes
 }
 
-func GetTxFilter(block *common.Block, i uint64) byte {
-	return block.Metadata.Metadata[2][i]
+func GetTxFilter(block *common.Block, i uint64) int {
+	return int(block.Metadata.Metadata[2][i])
+}
+
+func getChannelHeader(txBytes []byte) (*common.ChannelHeader, error) {
+	env, err := util.GetEnvelopeFromBlock(txBytes)
+	if err != nil {
+		return nil, err
+	}
+	if env == nil {
+		return nil, errors.New("nil envelope")
+	}
+	payload, err := util.GetPayload(env)
+	if err != nil {
+		return nil, errors.Wrap(err, "error extracting ChannelHeader from payload")
+	}
+	channelHeaderBytes := payload.Header.ChannelHeader
+	channelHeader := &common.ChannelHeader{}
+	err = proto.Unmarshal(channelHeaderBytes, channelHeader)
+	if err != nil {
+		return nil, errors.Wrap(err, "error extracting ChannelHeader from payload")
+	}
+	return channelHeader, nil
 }
