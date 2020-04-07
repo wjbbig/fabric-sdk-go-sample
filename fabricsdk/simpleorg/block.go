@@ -3,7 +3,6 @@ package simpleorg
 import (
 	"encoding/hex"
 	"fabric-sdk-go-test/util"
-	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
@@ -33,7 +32,7 @@ func GetChannelVersion(config fab.ChannelCfg) uint64 {
 
 func GetCreateTime(block *common.Block) (string, error) {
 	firstTx := block.Data.Data[0]
-	channelHeader, err := getChannelHeader(firstTx)
+	channelHeader, err := util.GetChannelHeader(firstTx)
 	if err != nil {
 		return "", errors.Wrap(err, "error getting channelHeader")
 	}
@@ -50,7 +49,7 @@ func GenerateBlockHash(block *common.Block) (string, error) {
 func GetInvalidTxCount(lc *ledger.Client, block *common.Block) (uint64, error) {
 	var count uint64
 	for _, tx := range block.Data.Data {
-		channelHeader, err := getChannelHeader(tx)
+		channelHeader, err := util.GetChannelHeader(tx)
 		if err != nil {
 			return 0, errors.Wrap(err, "error getting channelHeader")
 		}
@@ -73,25 +72,4 @@ func GetTx(block *common.Block, i uint64) []byte {
 
 func GetTxFilter(block *common.Block, i uint64) int {
 	return int(block.Metadata.Metadata[2][i])
-}
-
-func getChannelHeader(txBytes []byte) (*common.ChannelHeader, error) {
-	env, err := util.GetEnvelopeFromBlock(txBytes)
-	if err != nil {
-		return nil, err
-	}
-	if env == nil {
-		return nil, errors.New("nil envelope")
-	}
-	payload, err := util.GetPayload(env)
-	if err != nil {
-		return nil, errors.Wrap(err, "error extracting ChannelHeader from payload")
-	}
-	channelHeaderBytes := payload.Header.ChannelHeader
-	channelHeader := &common.ChannelHeader{}
-	err = proto.Unmarshal(channelHeaderBytes, channelHeader)
-	if err != nil {
-		return nil, errors.Wrap(err, "error extracting ChannelHeader from payload")
-	}
-	return channelHeader, nil
 }

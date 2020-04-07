@@ -64,3 +64,36 @@ func GetTransaction(txBytes []byte) (*peer.Transaction, error) {
 	err := proto.Unmarshal(txBytes, tx)
 	return tx, errors.Wrap(err, "error unmarshaling Transaction")
 }
+
+func GetChannelHeader(txBytes []byte) (*common.ChannelHeader, error) {
+	env, err := GetEnvelopeFromBlock(txBytes)
+	if err != nil {
+		return nil, err
+	}
+	if env == nil {
+		return nil, errors.New("nil envelope")
+	}
+	payload, err := GetPayload(env)
+	if err != nil {
+		return nil, errors.Wrap(err, "error extracting ChannelHeader from payload")
+	}
+	channelHeaderBytes := payload.Header.ChannelHeader
+	channelHeader := &common.ChannelHeader{}
+	err = proto.Unmarshal(channelHeaderBytes, channelHeader)
+	if err != nil {
+		return nil, errors.Wrap(err, "error extracting ChannelHeader from payload")
+	}
+	return channelHeader, nil
+}
+
+func GetChaincodeProposalPayload(bytes []byte) (*peer.ChaincodeProposalPayload, error) {
+	cpp := &peer.ChaincodeProposalPayload{}
+	err := proto.Unmarshal(bytes, cpp)
+	return cpp, errors.Wrap(err, "error unmarshaling ChaincodeProposalPayload")
+}
+
+func GetChaincodeActionPayload(capBytes []byte) (*peer.ChaincodeActionPayload, error) {
+	cap := &peer.ChaincodeActionPayload{}
+	err := proto.Unmarshal(capBytes, cap)
+	return cap, errors.Wrap(err, "error unmarshaling ChaincodeActionPayload")
+}
