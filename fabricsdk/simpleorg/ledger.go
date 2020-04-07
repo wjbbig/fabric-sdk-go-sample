@@ -18,12 +18,10 @@ func (fm *FabricModel) QueryInfo() (*fab.BlockchainInfoResponse, error) {
 	return fm.LedgerClient.QueryInfo()
 }
 
-func (fm *FabricModel) QueryBlockNumberByHash(hash string) (*common.Block, error) {
-	return fm.LedgerClient.QueryBlockByHash([]byte(hash))
+func (fm *FabricModel) QueryBlockByHash(hash []byte) (*common.Block, error) {
+	return fm.LedgerClient.QueryBlockByHash(hash)
 }
 
 func (fm *FabricModel) QueryConfig() (fab.ChannelCfg, error) {
 	return fm.LedgerClient.QueryConfig()
 }
-
-
