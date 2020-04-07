@@ -92,3 +92,7 @@ func TestGetEndorserSignature(t *testing.T) {
 	}
 	t.Log(signature)
 }
+
+func TestGetReadSet(t *testing.T) {
+	GetReadSet(tx)
+}

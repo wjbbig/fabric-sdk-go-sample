@@ -3,8 +3,10 @@ package simpleorg
 import (
 	"encoding/hex"
 	"fabric-sdk-go-test/util"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-protos-go/ledger/rwset"
 	"github.com/hyperledger/fabric-protos-go/msp"
 	pb "github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
@@ -99,7 +101,10 @@ func GetEndorserMSPId(tx []byte) ([]string, error) {
 }
 
 func GetReadSet(tx []byte) {
-
+	chaincodeAction, _ := getChaincodeAction(tx)
+	result := &rwset.NsReadWriteSet{}
+	proto.Unmarshal(chaincodeAction.Results, result)
+	fmt.Println(result.Namespace)
 }
 
 func GetWriteSet(tx []byte) {
