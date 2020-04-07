@@ -4,23 +4,6 @@ import (
 	"testing"
 )
 
-var fm1 *FabricModel
-var tx []byte
-
-func init() {
-	fm1 = &FabricModel{
-		ConfigFile: "/home/fujitsu/IdeaProjects/com/fujitsu/fabric-sdk-go-test/config/connection-config.yaml",
-		OrgAdmin:   "Admin",
-		OrgName:    "Org1",
-		UserName:   "User1",
-		ChannelID:  "mychannel",
-		HasInit:    false,
-	}
-	fm1.Init()
-
-	block1, _ := fm.QueryBlockByNumber(4)
-	tx = block1.Data.Data[0]
-}
 
 func TestGetTxHash(t *testing.T) {
 	hash, err := GetTxHash(tx)
@@ -60,4 +43,52 @@ func TestGetFunctionParameters(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(parameters)
+}
+
+func TestGetCreatorMSPId(t *testing.T) {
+	id, err := GetCreatorMSPId(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(id)
+}
+
+func TestGetEndorserMSPId(t *testing.T) {
+	id, err := GetEndorserMSPId(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(id)
+}
+
+func TestGetCreatTime(t *testing.T) {
+	time, err := GetCreatTime(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(time)
+}
+
+func TestGetChaincodeName(t *testing.T) {
+	name, err := GetChaincodeName(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(name)
+}
+
+func TestGetResponseStatus(t *testing.T) {
+	status, err := GetResponseStatus(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(status)
+}
+
+func TestGetEndorserSignature(t *testing.T) {
+	signature, err := GetEndorserSignature(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(signature)
 }

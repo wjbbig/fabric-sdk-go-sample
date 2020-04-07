@@ -7,7 +7,7 @@ import (
 
 var fm *FabricModel
 var block *common.Block
-
+var tx []byte
 func init() {
 	fm = &FabricModel{
 		ConfigFile: "/home/fujitsu/IdeaProjects/com/fujitsu/fabric-sdk-go-test/config/connection-config.yaml",
@@ -20,7 +20,7 @@ func init() {
 	fm.Init()
 
 	block, _ = fm.QueryBlockByNumber(4)
-
+	tx = block.Data.Data[0]
 }
 
 func TestGetBlockNumber(t *testing.T) {
