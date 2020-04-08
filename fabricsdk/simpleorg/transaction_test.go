@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-
 func TestGetTxHash(t *testing.T) {
 	hash, err := GetTxHash(tx)
 	if err != nil {
@@ -94,5 +93,33 @@ func TestGetEndorserSignature(t *testing.T) {
 }
 
 func TestGetReadSet(t *testing.T) {
-	GetReadSet(tx)
+	set, err := GetReadSet(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(set)
+}
+
+func TestGetReadKeyList(t *testing.T) {
+	list, err := GetReadKeyList(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(list)
+}
+
+func TestGetWriteSet(t *testing.T) {
+	set, err := GetWriteSet(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(set)
+}
+
+func TestGetWriteKeyList(t *testing.T) {
+	list, err := GetWriteKeyList(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(list)
 }

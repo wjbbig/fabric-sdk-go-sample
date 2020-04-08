@@ -3,13 +3,15 @@ package simpleorg
 import (
 	"encoding/hex"
 	"fabric-sdk-go-test/util"
-	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/ledger/rwset"
+	"github.com/hyperledger/fabric-protos-go/ledger/rwset/kvrwset"
 	"github.com/hyperledger/fabric-protos-go/msp"
 	pb "github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -100,15 +102,124 @@ func GetEndorserMSPId(tx []byte) ([]string, error) {
 	return endorserMSPIds, nil
 }
 
-func GetReadSet(tx []byte) {
-	chaincodeAction, _ := getChaincodeAction(tx)
-	result := &rwset.NsReadWriteSet{}
-	proto.Unmarshal(chaincodeAction.Results, result)
-	fmt.Println(result.Namespace)
+func GetReadSet(tx []byte) ([]map[string]string, error) {
+	chaincodeAction, err := getChaincodeAction(tx)
+	if err != nil {
+		return nil, err
+	}
+	result := &rwset.TxReadWriteSet{}
+	err = proto.Unmarshal(chaincodeAction.Results, result)
+	if err != nil {
+		return nil, err
+	}
+	var readSets []map[string]string
+	for _, set := range result.NsRwset {
+		if set.Namespace != "lscc" {
+			readSet := make(map[string]string)
+			readSet["namespace"] = set.Namespace
+			kvrwset := &kvrwset.KVRWSet{}
+			err := proto.Unmarshal(set.Rwset, kvrwset)
+			if err != nil {
+				return nil, err
+			}
+			var setStr []string
+			for _, read := range kvrwset.Reads {
+				setStr = append(setStr, read.String())
+			}
+			readSet["set"] = strings.Join(setStr, "")
+			readSets = append(readSets, readSet)
+		}
+	}
+	return readSets, nil
 }
 
-func GetWriteSet(tx []byte) {
+func GetReadKeyList(tx []byte) ([]string, error) {
+	chaincodeAction, err := getChaincodeAction(tx)
+	if err != nil {
+		return nil, err
+	}
+	result := &rwset.TxReadWriteSet{}
+	err = proto.Unmarshal(chaincodeAction.Results, result)
+	if err != nil {
+		return nil, err
+	}
+	var readSet []string
+	for _, set := range result.NsRwset {
+		if set.Namespace != "lscc" {
+			kvrwset := &kvrwset.KVRWSet{}
+			err := proto.Unmarshal(set.Rwset, kvrwset)
+			if err != nil {
+				return nil, err
+			}
+			for _, read := range kvrwset.Reads {
+				if read.Version == nil {
+					readSet = append(readSet, read.Key+"!#null")
+				} else {
+					readSet = append(readSet, read.Key+"!#"+strconv.Itoa(int(read.Version.BlockNum))+"_"+
+						strconv.Itoa(int(read.Version.TxNum)))
+				}
+			}
+		}
+	}
+	return readSet, nil
+}
 
+func GetWriteSet(tx []byte) ([]map[string]string, error) {
+	chaincodeAction, err := getChaincodeAction(tx)
+	if err != nil {
+		return nil, err
+	}
+	result := &rwset.TxReadWriteSet{}
+	err = proto.Unmarshal(chaincodeAction.Results, result)
+	if err != nil {
+		return nil, err
+	}
+	var writeSets []map[string]string
+	for _, set := range result.NsRwset {
+		if set.Namespace != "lscc" {
+			writeSet := make(map[string]string)
+			writeSet["namespace"] = set.Namespace
+			kvrwset := &kvrwset.KVRWSet{}
+			err := proto.Unmarshal(set.Rwset, kvrwset)
+			if err != nil {
+				return nil, err
+			}
+			var setStr []string
+			for _, write := range kvrwset.Writes {
+				setStr = append(setStr, write.String())
+			}
+			writeSet["set"] = strings.Join(setStr, "")
+			writeSets = append(writeSets, writeSet)
+		}
+	}
+	return writeSets, nil
+}
+
+func GetWriteKeyList(tx []byte) ([]string, error) {
+	chaincodeAction, err := getChaincodeAction(tx)
+	if err != nil {
+		return nil, err
+	}
+	result := &rwset.TxReadWriteSet{}
+	err = proto.Unmarshal(chaincodeAction.Results, result)
+	if err != nil {
+		return nil, err
+	}
+	var writeSet []string
+	for _, set := range result.NsRwset {
+		if set.Namespace != "lscc" {
+
+			kvrwset := &kvrwset.KVRWSet{}
+			err := proto.Unmarshal(set.Rwset, kvrwset)
+			if err != nil {
+				return nil, err
+			}
+			for _, write := range kvrwset.Writes {
+				writeSet = append(writeSet, write.Key)
+			}
+		}
+	}
+	return writeSet, nil
 }
 
 func GetEndorserSignature(tx []byte) ([]map[string]string, error) {
